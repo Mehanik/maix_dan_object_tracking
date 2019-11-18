@@ -63,6 +63,7 @@ def main():
     sensor.set_framesize(sensor.QVGA)
     sensor.set_vflip(1)
 
+    # 20 class yolo
     classes = [
         'aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', 'car', 'cat',
         'chair', 'cow', 'diningtable', 'dog', 'horse', 'motorbike', 'person',
@@ -72,42 +73,49 @@ def main():
     # target_class = 7  # cat
     target_class = 4  # bottle
     # target_class = 19  # monitor
-
     task = kpu.load(0x500000)
-
     anchor = (1.08, 1.19, 3.42, 4.41, 6.63, 11.38, 9.42, 5.11, 16.62, 10.52)
-    a = kpu.init_yolo2(task, 0.05, 0.3, 5, anchor)
+
+    # For face detector yolo
+    # task = kpu.load(0x300000)
+    # anchor = (1.889, 2.5245, 2.9465, 3.94056, 3.99987, 5.3658, 5.155437, 6.92275, 6.718375, 9.01025)
+    # target_class = 0
+
+    a = kpu.init_yolo2(task, 0.1, 0.3, 5, anchor)
 
     sensor.run(1)
 
     while (True):
         img = sensor.snapshot()
         code = kpu.run_yolo2(task, img)
+
+        target_boxes = []
         if code:
             target_boxes = [d for d in code if d.classid() == target_class]
-            if target_boxes:
-                # change turret position
-                target = max(target_boxes, key=lambda d: d.value())
 
-                a = img.draw_rectangle(target.rect())
-                a = lcd.display(img)
-                for i in code:
-                    lcd.draw_string(target.x(),
-                                    target.y() + 12, '%f1.3' % target.value(),
-                                    lcd.RED, lcd.WHITE)
+        if target_boxes:
+            # change turret position
+            target = max(target_boxes, key=lambda d: d.value())
 
-                target_center_x = target.x() + target.w() // 2
-                target_center_y = target.y() + target.h() // 2
+            a = img.draw_rectangle(target.rect())
+            a = lcd.display(img)
+            for i in code:
+                lcd.draw_string(target.x(),
+                                target.y() + 12, '%f1.3' % target.value(),
+                                lcd.RED, lcd.WHITE)
 
-                servo_hor.pos += 0.00005 * (
-                    sensor.width() // 2 - target_center_x)
-                servo_vert.pos -= 0.0005 * (
-                    sensor.height() // 2 - target_center_y)
+            target_center_x = target.x() + target.w() // 2
+            target_center_y = target.y() + target.h() // 2
 
-                # print('hor', servo_hor.pos)
-                # print('vert', servo_vert.pos)
-            else:
-                a = lcd.display(img)
+            servo_hor.pos += 0.00015 * (
+                sensor.width() // 2 - target_center_x)
+            servo_vert.pos -= 0.0005 * (
+                sensor.height() // 2 - target_center_y)
+
+            # print('hor', servo_hor.pos)
+            # print('vert', servo_vert.pos)
+        else:
+            a = lcd.display(img)
     kpu.deinit(task)
 
 
