@@ -68,9 +68,9 @@ def main():
         'chair', 'cow', 'diningtable', 'dog', 'horse', 'motorbike', 'person',
         'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor'
     ]
-    target_class = 14  # person
+    # target_class = 14  # person
     # target_class = 7  # cat
-    # target_class = 4  # bottle
+    target_class = 4  # bottle
     # target_class = 19  # monitor
 
     task = kpu.load(0x500000)
@@ -104,8 +104,8 @@ def main():
                 servo_vert.pos -= 0.0005 * (
                     sensor.height() // 2 - target_center_y)
 
-                print('hor', servo_hor.pos)
-                print('vert', servo_vert.pos)
+                # print('hor', servo_hor.pos)
+                # print('vert', servo_vert.pos)
             else:
                 a = lcd.display(img)
     kpu.deinit(task)

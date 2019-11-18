@@ -16,7 +16,6 @@ utime.sleep(2)
 
 if test_gpio.value() == 0:
     print('PIN 16 pulled down, enter test mode')
-    pass
     # import sensor
     # import image
     # sensor.reset()
@@ -27,5 +26,5 @@ if test_gpio.value() == 0:
     # while True:
     #     img = sensor.snapshot()
     #     lcd.display(img)
-
-main()
+else:
+    main()
